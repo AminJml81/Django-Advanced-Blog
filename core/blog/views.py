@@ -5,7 +5,10 @@ from django.views.generic import (
     DeleteView)
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import HttpResponse
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 # Create your views here.
 from blog.models import Post
@@ -47,3 +50,8 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'blog/post_delete.html'
     success_url = '/blog/'
+
+
+@api_view(['get', 'post'])
+def api_post_list_view(request):
+    return Response({'status':"Done"})
