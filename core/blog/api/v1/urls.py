@@ -6,7 +6,8 @@ from blog.api.v1 import views
 app_name = 'api-v1'
 
 router = DefaultRouter()
-router.register('post', views.PostViewSet, basename='post')
+router.register('post', views.PostModelViewSet, basename='post')
+router.register('category', views.CategoryModelViewSet, basename='category')
 
 # urlpatterns = [
 #     #path('post/', views.post_list, name='post-list'),

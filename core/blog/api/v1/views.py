@@ -8,8 +8,8 @@ from rest_framework import status
 from rest_framework.permissions import (IsAuthenticated, IsAuthenticatedOrReadOnly)
 from django.shortcuts import get_object_or_404
 
-from blog.api.v1.serializers import PostSerializer
-from blog.models import Post
+from blog.api.v1.serializers import PostSerializer, CategorySerializer
+from blog.models import Post, Category
 
 
 # @api_view(['GET', "POST"])
@@ -114,7 +114,7 @@ from blog.models import Post
 #     lookup_field = 'id'
 
 
-class PostViewSet(ModelViewSet):
+class PostModelViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = PostSerializer
     queryset = Post.objects.filter(status=True)
@@ -146,3 +146,9 @@ class PostViewSet(ModelViewSet):
     #     post_object = get_object_or_404(self.queryset, pk=pk)
     #     post_object.delete()
     #     return Response({'detail':'item removed successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class CategoryModelViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
