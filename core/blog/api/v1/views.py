@@ -6,10 +6,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.permissions import (IsAuthenticated, IsAuthenticatedOrReadOnly)
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 from django.shortcuts import get_object_or_404
 
 from blog.api.v1.serializers import PostSerializer, CategorySerializer
 from blog.models import Post, Category
+from .permission import IsOwnerOrReadOnly
+from .paginations import CustomPagianion
 
 
 # @api_view(['GET', "POST"])
@@ -115,9 +119,15 @@ from blog.models import Post, Category
 
 
 class PostModelViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = PostSerializer
     queryset = Post.objects.filter(status=True)
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    # filterset_fields = ['category', 'author', 'status']
+    filterset_fields = {'category':['exact', 'in'], 'author':['exact'], 'status':['exact']}
+    search_fields = ['title', 'content']
+    ordering_fields = ['published_date']
+    pagination_class = CustomPagianion
 
 
     # def list(self, request):
@@ -149,6 +159,6 @@ class PostModelViewSet(ModelViewSet):
 
 
 class CategoryModelViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     serializer_class = CategorySerializer
     queryset = Category.objects.all()

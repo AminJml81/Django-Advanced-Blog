@@ -23,12 +23,17 @@ class Post(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
     published_date = models.DateTimeField()
 
-
-    def get_absolute_url(self):
-        return reverse('blog:post-detail', kwargs={"pk":self.id})
-
     def __str__(self):
         return self.title
+    
+    # def get_absolute_url(self):
+    #     return reverse('blog:post-detail', kwargs={"pk":self.id})
+    
+    def get_absolute_api_url(self):
+        return reverse('blog:api-v1:post-detail', kwargs={'pk':self.pk})
+    
+    def get_snippet(self):
+        return self.content[0:10] + ' ...'
 
 
 class Category(models.Model):
