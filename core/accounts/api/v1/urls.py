@@ -1,19 +1,29 @@
 from django.urls import path, include
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView, 
+    TokenRefreshView,
+    TokenVerifyView,
+)
+ 
 # from rest_framework.authtoken.views import obtain_auth_token
 
-from . import views
+from .views import RegistraionAPIView, CustomAuthToken, CustomDiscardAuthToken, CustomTokenObtainPairView
 
 
 app_name = 'api-v1'
 
 urlpatterns = [
     # registration
-    path('registration/', views.RegistraionAPIView.as_view(), name='registarion'),
-    path('token/login/', views.CustomAuthToken.as_view(), name='token-login'),
-    path('token/logout/', views.CustomDiscardAuthToken.as_view(), name='token-logout'),
+    path('registration/', RegistraionAPIView.as_view(), name='registarion'),
     # change password
     # reset password
     # login token
+    path('token/login/', CustomAuthToken.as_view(), name='token-login'),
+    path('token/logout/', CustomDiscardAuthToken.as_view(), name='token-logout'),
+
     # login jwt
+    path('jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt-create'),
+    path('jwt/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
+    path('jwt/verify/', TokenVerifyView.as_view(), name='jwt-verify')
 ]
