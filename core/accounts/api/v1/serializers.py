@@ -8,7 +8,8 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 
-from ...models import User
+from ...models import User, Profile
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=255, write_only=True)
@@ -116,3 +117,11 @@ class ChangePasswordSerializer(serializers.Serializer):
         except exceptions.ValidationError as e:
             raise serializers.ValidationError({'new_password':list(e.messages)})
         return super().validate(attrs)
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    email = serializers.CharField(source='user.email', read_only=True)
+
+    class Meta:
+        model = Profile 
+        fields = ['email', 'first_name', 'last_name', 'image', 'description']
