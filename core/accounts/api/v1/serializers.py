@@ -66,6 +66,11 @@ class CustomAuthTokenSerializer(serializers.Serializer):
             if not user:
                 msg = _('Unable to log in with provided credentials.')
                 raise serializers.ValidationError(msg, code='authorization')
+            if not user.is_verified:
+                print('asd')
+                msg = _('User is Not Verified')
+                raise serializers.ValidationError(msg, code='verification')
+
         else:
             msg = _('Must include "username" and "password".')
             raise serializers.ValidationError(msg, code='authorization')
@@ -79,6 +84,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
+        if not self.user.is_verified:
+            msg = _('User is Not Verified')
+            raise serializers.ValidationError(msg, code='verification')
+
 
         refresh = self.get_token(self.user)
 
@@ -93,20 +102,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
     
 
-    # def to_representation(self, instance):
-    #     representaion =  super().to_representation(instance)
-    #     representaion['user_id'] = self.user.id
-    #     representaion['email'] = self.user.email
-    #     return representaion
-
-
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
     new_password2 =serializers.CharField(required=True)
 
-    # class Meta:
-    #     fields = ['old_password', 'new_password', 'new_password2']
 
     def validate(self, attrs):
         new_password, new_password2 = attrs['new_password'], attrs['new_password2']

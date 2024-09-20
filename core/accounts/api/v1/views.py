@@ -36,6 +36,7 @@ class RegistraionAPIView(GenericAPIView):
     
 
 class CustomAuthToken(ObtainAuthToken):
+    # this view is for login with simple token
     serializer_class = CustomAuthTokenSerializer
 
     def post(self, request, *args, **kwargs):
@@ -59,6 +60,8 @@ class CustomDiscardAuthToken(APIView):
     
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    # this view is for login with jwt token, which jwt token is created
+    # and for each task, token gets validated.
     serializer_class = CustomTokenObtainPairSerializer
 
 
