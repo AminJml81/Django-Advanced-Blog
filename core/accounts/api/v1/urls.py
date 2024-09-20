@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import (
  
 # from rest_framework.authtoken.views import obtain_auth_token
 
-from .views import RegistraionAPIView, CustomAuthToken, CustomDiscardAuthToken, CustomTokenObtainPairView
+from .views import RegistraionAPIView, CustomAuthToken, CustomDiscardAuthToken, CustomTokenObtainPairView, ChangePasswordGernicView
 
 
 app_name = 'api-v1'
@@ -17,7 +17,9 @@ urlpatterns = [
     # registration
     path('registration/', RegistraionAPIView.as_view(), name='registarion'),
     # change password
+    path('change-password/', ChangePasswordGernicView.as_view(), name='change-password'),
     # reset password
+
     # login token
     path('token/login/', CustomAuthToken.as_view(), name='token-login'),
     path('token/logout/', CustomDiscardAuthToken.as_view(), name='token-logout'),
