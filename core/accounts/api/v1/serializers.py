@@ -1,6 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import update_last_login
 
@@ -9,6 +9,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 
 from ...models import User, Profile
+
+User = get_user_model()
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -67,7 +69,6 @@ class CustomAuthTokenSerializer(serializers.Serializer):
                 msg = _('Unable to log in with provided credentials.')
                 raise serializers.ValidationError(msg, code='authorization')
             if not user.is_verified:
-                print('asd')
                 msg = _('User is Not Verified')
                 raise serializers.ValidationError(msg, code='verification')
 
@@ -120,8 +121,25 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    email = serializers.CharField(source='user.email', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
 
     class Meta:
         model = Profile 
         fields = ['email', 'first_name', 'last_name', 'image', 'description']
+
+
+class ActivationResendSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'detail':'user does not exist !!!'})
+        
+        if user.is_verified:
+            raise serializers.ValidationError({'detail':'user is already activated !!!'})
+        attrs['user'] = user
+        return super().validate(attrs)

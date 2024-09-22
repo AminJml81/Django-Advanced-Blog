@@ -6,14 +6,23 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+
+import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
+
+from mail_templated import send_mail
+from mail_templated import EmailMessage
 
 from .serializers import (RegistrationSerializer, CustomAuthTokenSerializer,
                            CustomTokenObtainPairSerializer, ChangePasswordSerializer,
-                           ProfileSerializer)
+                           ProfileSerializer, ActivationResendSerializer)
 from ...models import Profile
+from ..utils import EmailThread
 
 
 user = get_user_model()
@@ -28,11 +37,21 @@ class RegistraionAPIView(GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             user_email = serializer.validated_data['email']
+            user = get_object_or_404(get_user_model(), email=user_email)
+            token = self.get_tokens_for_user(user)
+            email = EmailMessage('email/activation.tpl', {'token': token, 'user':user},
+                                'blog@admin.com', to=[user_email])
+            email_thread = EmailThread(email)
+            email_thread.start()
             data = {
                 'email': user_email 
             }
             return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get_tokens_for_user(self, user):
+        refresh = RefreshToken.for_user(user)
+        return str(refresh.access_token)
     
 
 class CustomAuthToken(ObtainAuthToken):
@@ -99,4 +118,76 @@ class ProfileGenericView(RetrieveUpdateAPIView):
         queryset = self.get_queryset()
         obj = get_object_or_404(queryset, user=self.request.user.id)
         return obj
+    
+
+
+class AccountSendEmail(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+
+    def get(self, request, *args, **kwargs):
+        # send_mail(f"Hello {request.user.email}",
+        #             "Testing email.",
+        #             "blog@gmail.com",
+        #             ["aminbest1381@gmail.com"],
+        #             fail_silently=False,)
+
+        user = request.user
+        user_email = user.email
+        # send_mail('email/hello.tpl', {'user': user}, 'blog@admin.com', [user.email])
+        token = self.get_tokens_for_user(user)
+        email = EmailMessage('email/hello.tpl', {'token': token, 'user':user}, 'blog@admin.com',
+                            to=[user_email])
+        email_thread = EmailThread(email)
+        email_thread.start()
+        return Response({'detail':'email sent'})
+    
+
+    def get_tokens_for_user(self, user):
+        refresh = RefreshToken.for_user(user)
+        return str(refresh.access_token)
+    
+
+
+class ActivationAPiView(APIView):
+
+    def get(self, reqeust, token, *args, **kwargs):
+        try:
+            decoded_token = jwt.decode(token, key=settings.SECRET_KEY, algorithms=["HS256"])
+        except InvalidTokenError:
+            return Response({'Token Error':'Token is not Valid'}, status=status.HTTP_400_BAD_REQUEST)
+        except ExpiredSignatureError:
+            return Response({'Token Error':'Token is Expired'}, status=status.HTTP_400_BAD_REQUEST)
+        except PyJWTError as e:
+            return Response({'Token Error': type(e).__name__}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user_id = decoded_token.get('user_id')
+        user = get_object_or_404(get_user_model(), pk=user_id)
+        if not user.is_verified:
+            user.is_verified = True
+            user.save()
+            message = f'{user.email} your account has been activated'
+        else:
+            message = f'{user.email} your account has already been activated!!! '
+        return Response(message)
+    
+
+class ActivationResendAPIView(GenericAPIView):
+    serializer_class = ActivationResendSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data.get('user')
+        user_email = serializer.validated_data.get('email')
+        token = self.get_tokens_for_user(user)
+        email = EmailMessage('email/activation.tpl', {'token': token, 'user':user},
+                            'blog@admin.com', to=[user_email])
+        email_thread = EmailThread(email)
+        email_thread.start()
+        return Response({'detail':'email sent successfully'}, status=status.HTTP_201_CREATED)
+
+    def get_tokens_for_user(self, user):
+        refresh = RefreshToken.for_user(user)
+        return str(refresh.access_token)
     
