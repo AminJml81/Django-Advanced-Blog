@@ -13,7 +13,7 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=250)
     last_name = models.CharField(max_length=250)
-    image = models.ImageField(blank=True, null=True, upload_to='profile/')
+    image = models.ImageField(blank=True, null=True, upload_to="profile/")
     description = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
@@ -27,5 +27,5 @@ def save_profile(sender, **kwargs):
     """
     Signal for post creating a user which activates when a user being created ONLY
     """
-    if kwargs.get('created'):
-        Profile.objects.create(user=kwargs.get('instance'))
+    if kwargs.get("created"):
+        Profile.objects.create(user=kwargs.get("instance"))
