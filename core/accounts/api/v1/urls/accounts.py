@@ -1,7 +1,7 @@
 from django.urls import path
 
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
+    #TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView,
 )
@@ -13,9 +13,9 @@ from ..views import (
     CustomAuthToken,
     CustomDiscardAuthToken,
     CustomTokenObtainPairView,
-    ChangePasswordGernicView,
-    ProfileGenericView,
-    AccountSendEmail,
+    ChangePasswordGenericView,
+    #ProfileGenericView,
+    #AccountSendEmail,
     ActivationAPiView,
     ActivationResendAPIView,
 )
@@ -26,7 +26,7 @@ urlpatterns = [
     path("registration/", RegistraionAPIView.as_view(), name="registarion"),
     # change password
     path(
-        "change-password/", ChangePasswordGernicView.as_view(), name="change-password"
+        "change-password/", ChangePasswordGenericView.as_view(), name="change-password"
     ),
     # reset password
     # user activation

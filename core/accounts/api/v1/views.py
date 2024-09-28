@@ -15,7 +15,6 @@ from django.conf import settings
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 
-from mail_templated import send_mail
 from mail_templated import EmailMessage
 
 from .serializers import (
@@ -89,7 +88,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-class ChangePasswordGernicView(GenericAPIView):
+class ChangePasswordGenericView(GenericAPIView):
     serializer_class = ChangePasswordSerializer
     model = user
     permission_classes = [
