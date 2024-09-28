@@ -1,7 +1,7 @@
 from django.urls import path
 
 from rest_framework_simplejwt.views import (
-    #TokenObtainPairView,
+    # TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView,
 )
@@ -14,8 +14,8 @@ from ..views import (
     CustomDiscardAuthToken,
     CustomTokenObtainPairView,
     ChangePasswordGenericView,
-    #ProfileGenericView,
-    #AccountSendEmail,
+    # ProfileGenericView,
+    # AccountSendEmail,
     ActivationAPiView,
     ActivationResendAPIView,
 )
