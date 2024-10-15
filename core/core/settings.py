@@ -166,3 +166,24 @@ EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
+
+# celery configs
+CELERY_BROKER_URL = 'redis://redis:6379/1'
+
+CELERY_BEAT_SCHEDULE = {
+    "test_beat": {
+        "task": "blog.tasks.test_beat",
+        "schedule": 5,
+    },
+}
+
+# Caching Configs
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
